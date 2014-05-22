@@ -1,0 +1,5 @@
+{
+    "name": "Sketch Data Parser",
+    "description": "A plugin that allow you to iterate on your own data to build profiles, lists, etc...",
+    "tags": ["JSON", "Data", "Iteration", "Lists", "Profiles"]
+}
