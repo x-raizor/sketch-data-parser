@@ -26,15 +26,43 @@ while (item = [loop nextObject]) {
 
 				if (layerName == propt) {
 
-					// Define the new text value
-					var newStringValue = obj[i][propt];
+					// Define current layer
+					var currentLayer = newGroupLayersList.array()[z];
 
-					// Apply the new value to the editable layer
-					newGroupLayersList.array()[z].setStringValue(newStringValue);
-					newGroupLayersList.array()[z].adjustFrameToFit(); // resize the text field
+					// Regular expression to match URL images					
+					var urlRegexp = new RegExp('(http)[s]?(://)');
+
+					// Conditional test for image
+					if (urlRegexp.test(obj[i][propt])) {
+
+						// Transform URL in usable data for Sketch
+						var imageData = NSImage.alloc().initWithData(get(obj[i][propt]));
+
+						// Apply the image as pattern on the layer
+						layerStyle = currentLayer.style().fills().addNewStylePart();
+						layerStyle.fillType = 4;
+						layerStyle.patternImage = imageData;
+						layerStyle.patternFillType = 1;
+					
+					} else {
+						
+						// Define the new text value
+						var newStringValue = obj[i][propt];
+
+						// Apply the new value to the editable layer
+						currentLayer.setStringValue(newStringValue);
+						currentLayer.adjustFrameToFit(); // resize the text field
+
+					}
 				}
 			}
 		}
 		newGroup.resizeRoot(); // resize the group field
 	}
+}
+
+function get(url) {
+  var request = NSURLRequest.requestWithURL(NSURL.URLWithString(url));
+  var response = NSURLConnection.sendSynchronousRequest_returningResponse_error(request, null, null);
+  return response;
 }
