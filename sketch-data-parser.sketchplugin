@@ -3,31 +3,38 @@
 var loop = [selection objectEnumerator]
 while (item = [loop nextObject]) {
 	
+	// Prompt JSON and parse it
 	var userJSON = [doc askForUserInput:"Paste your JSON here:" initialValue:""];
 	var json = userJSON, obj = JSON.parse(json);
 
+	// Iterate over the JSON data
 	for (var i = 0; i < obj.length; i++){
 
+		// Duplicate group
 		var newGroup = [item duplicate];
 		var newGroupLayersList = [newGroup layers]; // return an object instead of an array
 
+		// Iterating over the nested layers of the model group
 		for (var z = 0; z < newGroupLayersList.array().count(); z++){
 
+			// Store name of the layer and removing the first caracter
 			var layerName = newGroupLayersList.array()[z].name();
 			layerName = layerName.substring(1);
 			
+			// Loop in the JSON data to see if one layer is editable
 			for (var propt in obj[0]) {
 
 				if (layerName == propt) {
 
+					// Define the new text value
 					var newStringValue = obj[i][propt];
 
+					// Apply the new value to the editable layer
 					newGroupLayersList.array()[z].setStringValue(newStringValue);
-					newGroupLayersList.array()[z].adjustFrameToFit();
+					newGroupLayersList.array()[z].adjustFrameToFit(); // resize the text field
 				}
 			}
 		}
-
-		newGroup.resizeRoot();
+		newGroup.resizeRoot(); // resize the group field
 	}
 }
