@@ -21,7 +21,7 @@ Example :
 
 ##### Warning : the current version of the plugin doesn't include sub-folder, so you have to keep your editable layers at the first level of your model group
 
-In a second time you need to create a JSON with your data :
+In a second time you need to create a JSON with your data, **or use an existing JSON from any URL** :
 
 ```
 [
@@ -31,7 +31,7 @@ In a second time you need to create a JSON with your data :
 ]
 ```
 
-And now you just have to run the plugin, paste the JSON in the prompt and Sketch will automatically duplicate the group for you and populate the new data inside.
+And now you just have to run the plugin, paste the JSON, or an URL pointing to a JSON in the prompt and Sketch will automatically duplicate the group for you and populate the new data inside.
 
 #### Image support
 
