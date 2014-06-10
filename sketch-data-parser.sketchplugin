@@ -6,18 +6,18 @@ while (item = [loop nextObject]) {
 	// Prompt JSON and parse it
 	var userJSON = [doc askForUserInput:"Paste your JSON or an URL pointing to a JSON here:" initialValue:""];
 
-	// Regexp to match URL
-	var urlRegexp = new RegExp('(http)[s]?(://)');
+	// Regexp to match JSON
+	var jsonRegexp = new RegExp('{');
 
 	// Test if input is URL or JSON
-	if (urlRegexp.test(userJSON)) {
+	if (jsonRegexp.test(userJSON)) {
 
-		tmpjson = get(userJSON);
-		var json = NSString.alloc().initWithData_encoding(tmpjson, NSUTF8StringEncoding), obj = JSON.parse(json);
+		var json = userJSON, obj = JSON.parse(json);
 
 	} else {
 
-		var json = userJSON, obj = JSON.parse(json);
+		tmpjson = get(userJSON);
+		var json = NSString.alloc().initWithData_encoding(tmpjson, NSUTF8StringEncoding), obj = JSON.parse(json);
 		
 	}
 
@@ -42,6 +42,9 @@ while (item = [loop nextObject]) {
 
 					// Define current layer
 					var currentLayer = newGroupLayersList.array()[z];
+
+					// Regexp to match URL
+					var urlRegexp = new RegExp('(http)[s]?(://)');
 
 					// Conditional test for image
 					if (urlRegexp.test(obj[i][propt])) {
