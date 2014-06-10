@@ -37,8 +37,3 @@ And now you just have to run the plugin, paste the JSON, or an URL pointing to a
 
 The new version of the plugin is now supporting URL for images. It's working the same way as text, the plugin will automatically detect the URL and will use the image as a pattern for your shape.
 
-### Evolution
-Based on the needs I'm planning to add a way to use URL to use pictures.
-
-If you have suggestions, or want to improve my code just do it!
-
