@@ -29,8 +29,9 @@ while (item = [loop nextObject]) {
 					// Define current layer
 					var currentLayer = newGroupLayersList.array()[z];
 
-					// Regular expression to match URL images					
+					// Regular expression to match URL and Xpath images					
 					var urlRegexp = new RegExp('(http)[s]?(://)');
+					var xpathRegexp = new RegExp('(/Users/)');
 
 					// Conditional test for image
 					if (urlRegexp.test(obj[i][propt])) {
@@ -44,7 +45,24 @@ while (item = [loop nextObject]) {
 						layerStyle.patternImage = imageData;
 						layerStyle.patternFillType = 1;
 					
-					} else {
+					} else if (xpathRegexp.test(obj[i][propt])) {
+						
+						// Init the file manager and imagePath
+						fileManager = [NSFileManager defaultManager];
+						imagePath = obj[i][propt];
+
+						// If file existing transform it to usable data for Sketch
+						if ([fileManager fileExistsAtPath: imagePath]) {				
+							var imageData = [[NSImage alloc] initWithContentsOfFile:imagePath];
+						}
+
+						// Apply the image as pattern on the layer
+						layerStyle = currentLayer.style().fills().addNewStylePart();
+						layerStyle.fillType = 4;
+						layerStyle.patternImage = imageData;
+						layerStyle.patternFillType = 1;
+
+				  } else {
 						
 						// Define the new text value
 						var newStringValue = obj[i][propt];
