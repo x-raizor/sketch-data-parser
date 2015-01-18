@@ -1,4 +1,4 @@
-Sketch Data Parser plugin by Florian Peninon
+Sketch Data Parser
 ------
 
 ### Installation
