@@ -2,7 +2,7 @@
 
 var loop = [selection objectEnumerator]
 while (item = [loop nextObject]) {
-	
+
 	// Prompt JSON and parse it
 	var userJSON = [doc askForUserInput:"Paste your JSON here:" initialValue:""];
 	var json = userJSON, obj = JSON.parse(json);
@@ -20,7 +20,7 @@ while (item = [loop nextObject]) {
 			// Store name of the layer and removing the first caracter
 			var layerName = newGroupLayersList.array()[z].name();
 			layerName = layerName.substring(1);
-			
+
 			// Loop in the JSON data to see if one layer is editable
 			for (var propt in obj[0]) {
 
@@ -29,7 +29,7 @@ while (item = [loop nextObject]) {
 					// Define current layer
 					var currentLayer = newGroupLayersList.array()[z];
 
-					// Regular expression to match URL images					
+					// Regular expression to match URL images
 					var urlRegexp = new RegExp('(http)[s]?(://)');
 
 					// Conditional test for image
@@ -39,15 +39,15 @@ while (item = [loop nextObject]) {
 						var imageData = NSImage.alloc().initWithData(get(obj[i][propt]));
 
 						// Apply the image as pattern on the layer
-						layerStyle = currentLayer.style().fills().addNewStylePart();
-						layerStyle.fillType = 4;
-						layerStyle.patternImage = imageData;
-						layerStyle.patternFillType = 1;
-					
+						layerStyle = currentLayer.style().fills().firstObject();
+						layerStyle.setFillType(4);
+						layerStyle.setPatternImage(imageData);
+						layerStyle.setPatternFillType(1);
+
 					} else {
-						
+
 						// Define the new text value
-						var newStringValue = obj[i][propt];
+						var newStringValue = String(obj[i][propt]); // Convert the number in string in case it's needed
 
 						// Apply the new value to the editable layer
 						currentLayer.setStringValue(newStringValue);
@@ -57,12 +57,12 @@ while (item = [loop nextObject]) {
 				}
 			}
 		}
-		newGroup.resizeRoot(); // resize the group field
+		// newGroup.resizeRoot(); // resize the group field
 	}
 }
 
 function get(url) {
-  var request = NSURLRequest.requestWithURL(NSURL.URLWithString(url));
-  var response = NSURLConnection.sendSynchronousRequest_returningResponse_error(request, null, null);
-  return response;
+	var request = NSURLRequest.requestWithURL(NSURL.URLWithString(url));
+	var response = NSURLConnection.sendSynchronousRequest_returningResponse_error(request, null, null);
+	return response;
 }
