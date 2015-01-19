@@ -57,7 +57,7 @@ while (item = [loop nextObject]) {
 				}
 			}
 		}
-		// newGroup.resizeRoot(); // resize the group field
+		newGroup.resizeRoot(true); // resize the group field
 	}
 }
 
