@@ -1,28 +1,49 @@
 // Data parser (command l)
 
+/*
+ * Populate groups-cards with JSON data OR generate card collection with data by an example-group
+ * Name layers with $[name of data field in JSON]
+ * It works with text and shape layers. Inserts image as a pattern fill into shape layers
+ */
+
+
+// Prompt JSON and parse it
+var userJSON = [doc askForUserInput:"Paste your JSON here:" initialValue:""];
+var json = userJSON, dataCollection;
+
+try {
+	// Trying to parse JSON
+	dataCollection = JSON.parse(json);
+
+} catch (e) {
+
+	// Can't parse
+	[doc showMessage: 'JSON parsing error. Please, check the syntax']
+	log(e instanceof SyntaxError);
+}
+
 var loop = [selection objectEnumerator]
-while (item = [loop nextObject]) {
 
-	// Prompt JSON and parse it
-	var userJSON = [doc askForUserInput:"Paste your JSON here:" initialValue:""];
-	var json = userJSON, obj = JSON.parse(json);
+// Generate Mode: if selected one group as a prototype
+if ([selection count] == 1) { // was while (item = [loop nextObject])
 
-	// Iterate over the JSON data
-	for (var i = 0; i < obj.length; i++){
+	item = [loop nextObject]
+	// Iterate over the JSON datas
+	for (var i = 0; i < dataCollection.length; i++){
 
 		// Duplicate group
-		var newGroup = [item duplicate];
+		var newGroup = [item duplicate]; //duplicate
 		var newGroupLayersList = [newGroup layers]; // return an object instead of an array
 
 		// Iterating over the nested layers of the model group
 		for (var z = 0; z < newGroupLayersList.array().count(); z++){
 
-			// Store name of the layer and removing the first caracter
+			// Store name of the layer and removing the first character
 			var layerName = newGroupLayersList.array()[z].name();
 			layerName = layerName.substring(1);
 
 			// Loop in the JSON data to see if one layer is editable
-			for (var propt in obj[0]) {
+			for (var propt in dataCollection[0]) {
 
 				if (layerName == propt) {
 
@@ -33,10 +54,10 @@ while (item = [loop nextObject]) {
 					var urlRegexp = new RegExp('(http)[s]?(://)');
 
 					// Conditional test for image
-					if (urlRegexp.test(obj[i][propt])) {
+					if (urlRegexp.test(dataCollection[i][propt])) {
 
 						// Transform URL in usable data for Sketch
-						var imageData = NSImage.alloc().initWithData(get(obj[i][propt]));
+						var imageData = NSImage.alloc().initWithData(get(dataCollection[i][propt]));
 
 						// Apply the image as pattern on the layer
 						layerStyle = currentLayer.style().fills().firstObject();
@@ -47,7 +68,7 @@ while (item = [loop nextObject]) {
 					} else {
 
 						// Define the new text value
-						var newStringValue = String(obj[i][propt]); // Convert the number in string in case it's needed
+						var newStringValue = String(dataCollection[i][propt]); // Convert the number in string in case it's needed
 
 						// Apply the new value to the editable layer
 						currentLayer.setStringValue(newStringValue);
@@ -60,9 +81,109 @@ while (item = [loop nextObject]) {
 		newGroup.resizeRoot(true); // resize the group field
 	}
 }
+// Populate Mode: reset all data with JSON content 
+else {
+
+	//data = [dataCollection objectEnumerator]
+
+	var Iterator = function(objectsArray) {
+		var index = 0; 
+		return function(){
+			if (index >= objectsArray.length) index--;
+			return objectsArray[index++];
+		}
+	}
+
+	var nextObject = Iterator(dataCollection);
+
+	// Iterate over selected objects
+	while (item = [loop nextObject]) {
+
+		// Take next JSON object
+			var dat = nextObject();
+
+			//TODO: return here all nested layers also
+			/*
+			var firstLevelList = [item layers], // return an object instead of an array
+				layersList = []; // return an object instead of an array
+			for (var k = 0; k < item.layers().length; k++) {
+				gatherNestedLayers(layersList, item.layers()[k]);
+				var layer = item.layers()[k];
+				log([layer name]);
+			}
+			*/
+			
+
+			var layersList = [item layers];
+
+			// Iterating over the nested layers of the model group
+			for (var z = 0; z < layersList.array().count(); z++){  
+
+				// Store name of the layer and removing the first character
+				var layerName = layersList.array()[z].name().substring(1);  
+
+				// Loop in the JSON data to see if one layer is editable
+				for (var propt in dat) {
+
+					if (layerName == propt) {
+
+						// Define current layer
+						var currentLayer = layersList.array()[z]; 
+
+						// Regular expression to match URL images
+						var urlRegexp = new RegExp('(http)[s]?(://)');
+
+						// Conditional test for image
+						if (urlRegexp.test(dat[propt])) {
+
+							// Transform URL in usable data for Sketch
+							var imageData = NSImage.alloc().initWithData(get(dat[propt]));
+
+							// Apply the image as pattern on the layer
+							layerStyle = currentLayer.style().fills().firstObject();
+							layerStyle.setFillType(4);
+							layerStyle.setPatternImage(imageData);
+							layerStyle.setPatternFillType(1);
+
+						} else {
+
+							// Define the new text value
+							var newStringValue = String(dat[propt]); // Convert the number in string in case it's needed
+
+							// Apply the new value to the editable layer
+							currentLayer.setStringValue(newStringValue);
+							currentLayer.adjustFrameToFit(); // resize the text field
+
+						}
+					}
+				}
+			}
+			item.resizeRoot(true); // resize the group field	
+	}
+}
 
 function get(url) {
 	var request = NSURLRequest.requestWithURL(NSURL.URLWithString(url));
 	var response = NSURLConnection.sendSynchronousRequest_returningResponse_error(request, null, null);
 	return response;
+}
+
+function isGroup(layer) {
+  return [layer isMemberOfClass:[MSLayerGroup class]] || [layer isMemberOfClass:[MSArtboardGroup class]]
+}
+
+function gatherNestedLayers(collection, layer) {
+/*
+ * Gathering all layers into 'collection' array
+ * starting from 'layer' and excluding group layers
+ */
+	if(isGroup(layer)){
+		var layers = [layer layers];
+		for (var x = 0; x < [layers count]; x++){
+    				var childLayer = layers.array()[x];
+				gatherNestedLayers(collection, childLayer);
+	 	}
+	} else {
+		collection.push(layer);
+	}
 }
